@@ -1,1 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Calculator Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
 
+    <!-- Tela de Cadastro Inicial -->
+    <div id="welcome-screen" class="modal-overlay">
+        <div class="modal-content">
+            <h2><i class="fa-solid fa-dumbbell"></i> Fitness Calculator Pro</h2>
+            <p>Seja bem-vindo! Para começarmos, precisamos de alguns dados essenciais:</p>
+            <form id="setup-form">
+                <div class="form-group">
+                    <label for="user-name">Nome completo</label>
+                    <input type="text" id="user-name" required placeholder="Ex: João Silva">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="user-gender">Gênero</label>
+                        <select id="user-gender" required>
+                            <option value="1">Homem</option>
+                            <option value="2">Mulher</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-age">Idade</label>
+                        <input type="number" id="user-age" required min="1" max="120" placeholder="Ex: 25">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="user-weight">Peso atual (kg)</label>
+                        <input type="number" id="user-weight" required step="0.1" placeholder="Ex: 75.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="user-height">Altura (cm)</label>
+                        <input type="number" id="user-height" required placeholder="Ex: 175">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="user-activity">Nível de Atividade Física</label>
+                    <select id="user-activity" required>
+                        <option value="1">Sedentário (Pouco ou nenhum exercício)</option>
+                        <option value="2">Leve (Exercício 1-3x por semana)</option>
+                        <option value="3">Moderado (Exercício 3-5x por semana)</option>
+                        <option value="4">Intenso (Exercício 6-7x por semana)</option>
+                        <option value="5">Muito Intenso (Atleta, treino 2x ao dia)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="user-goal">Objetivo Principal</label>
+                    <select id="user-goal" required>
+                        <option value="1">Ganhar Massa Muscular</option>
+                        <option value="2">Perder Gordura</option>
+                        <option value="3">Manter Peso</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Acessar Painel <i class="fa-solid fa-arrow-right"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Principal (Oculto inicialmente) -->
+    <div id="main-dashboard" class="dashboard-container hidden">
+        
+        <!-- Barra Lateral de Navegação -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fa-solid fa-heart-pulse"></i> FitPro</h3>
+                <span id="display-profile-name">Usuário</span>
+            </div>
+            <nav class="sidebar-menu">
+                <button class="nav-btn active" data-target="panel-metabolismo"><i class="fa-solid fa-calculator"></i> Metabolismo (TMB/GET)</button>
+                <button class="nav-btn" data-target="panel-macros"><i class="fa-solid fa-pie-chart"></i> Macronutrientes</button>
+                <button class="nav-btn" data-target="panel-imc"><i class="fa-solid fa-scale-balanced"></i> IMC & Diagnóstico</button>
+                <button class="nav-btn" data-target="panel-treino-academia"><i class="fa-solid fa-dumbbell"></i> Treino Academia</button>
+                <button class="nav-btn" data-target="panel-treino-cardio"><i class="fa-solid fa-person-running"></i> Treino Cardio</button>
+                <button class="nav-btn" data-target="panel-dicas-nutricao"><i class="fa-solid fa-apple-whole"></i> Dicas de Nutrição</button>
+                <button class="nav-btn" data-target="panel-plano-alimentar"><i class="fa-solid fa-calendar-day"></i> Plano Diário</button>
+                <button class="nav-btn" data-target="panel-cardapio"><i class="fa-solid fa-utensils"></i> Cardápio Simples</button>
+                <button class="nav-btn" data-target="panel-progresso"><i class="fa-solid fa-chart-line"></i> Progresso 12 Semanas</button>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="btn-download-report" class="btn-secondary"><i class="fa-solid fa-file-arrow-down"></i> Baixar Relatório</button>
+                <button id="btn-logout" class="btn-danger"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+            </div>
+        </aside>
+
+        <!-- Área de Conteúdo Dinâmico -->
+        <main class="content-area">
+            
+            <!-- Painel 1: Metabolismo -->
+            <section id="panel-metabolismo" class="content-panel active-panel">
+                <h2>Taxa Metabólica Basal & Gasto Energético</h2>
+                <div class="grid-cards">
+                    <div class="card bg-gradient-blue">
+                        <h3>TMB</h3>
+                        <p class="card-value" id="tmb-val">0 kcal</p>
+                        <small>Energia gasta pelo corpo em repouso absoluto.</small>
+                    </div>
+                    <div class="card bg-gradient-orange">
+                        <h3>GET</h3>
+                        <p class="card-value" id="get-val">0 kcal</p>
+                        <small>Gasto energético total considerando suas atividades.</small>
+                    </div>
+                </div>
+                <div class="info-block">
+                    <h3>Recomendações de Ingestão Diária</h3>
+                    <table class="styled-table">
+                        <thead>
+                            <tr>
+                                <th>Objetivo</th>
+                                <th>Calorias Recomendadas</th>
+                                <th>Estratégia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Manter Peso</td>
+                                <td id="cal-manter" class="font-bold">0 kcal</td>
+                                <td>Equilíbrio Energético</td>
+                            </tr>
+                            <tr>
+                                <td>Perder Peso</td>
+                                <td id="cal-perder" class="font-bold text-danger">0 kcal</td>
+                                <td>Déficit de 400 kcal</td>
+                            </tr>
+                            <tr>
+                                <td>Ganhar Peso</td>
+                                <td id="cal-ganhar" class="font-bold text-success">0 kcal</td>
+                                <td>Superávit de 400 kcal</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Painel 2: Macros -->
+            <section id="panel-macros" class="content-panel hidden">
+                <h2>Macronutrientes Diários</h2>
+                <p id="macro-goal-title" class="sub-target">Objetivo: </p>
+                <div class="grid-cards-three">
+                    <div class="card macro-card-prot">
+                        <h3>Proteínas</h3>
+                        <p class="card-value" id="macro-prot">0g</p>
+                        <small id="kcal-prot">0 kcal</small>
+                    </div>
+                    <div class="card macro-card-fat">
+                        <h3>Gorduras</h3>
+                        <p class="card-value" id="macro-fat">0g</p>
+                        <small id="kcal-fat">0 kcal</small>
+                    </div>
+                    <div class="card macro-card-carb">
+                        <h3>Carboidratos</h3>
+                        <p class="card-value" id="macro-carb">0g</p>
+                        <small id="kcal-carb">0 kcal</small>
+                    </div>
+                </div>
+                <div class="total-bar-container">
+                    <h4>Total Planejado: <span id="macro-total-kcal">0</span> kcal/dia</h4>
+                </div>
+            </section>
+
+            <!-- Painel 3: IMC -->
+            <section id="panel-imc" class="content-panel hidden">
+                <h2>Índice de Massa Corporal (IMC)</h2>
+                <div class="imc-result-wrapper">
+                    <div class="card-imc">
+                        <h3>Seu IMC Atual</h3>
+                        <p class="card-value" id="imc-val">0.0</p>
+                        <div id="imc-badge" class="badge">Calculando...</div>
+                    </div>
+                    <div class="imc-table-container">
+                        <h3>Tabela de Referência</h3>
+                        <table class="styled-table">
+                            <tr id="row-imc-1"><td>Abaixo de 18.5</td><td>Abaixo do Peso ideal</td></tr>
+                            <tr id="row-imc-2"><td>18.5 a 24.9</td><td>Peso Normal</td></tr>
+                            <tr id="row-imc-3"><td>25.0 a 29.9</td><td>Sobrepeso</td></tr>
+                            <tr id="row-imc-4"><td>30.0 ou mais</td><td>Obesidade</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Painel 4: Treino Academia -->
+            <section id="panel-treino-academia" class="content-panel hidden">
+                <h2>Treino de Academia Personalizado</h2>
+                <div class="accordion" id="workout-gym-container">
+                    <!-- Gerado Dinamicamente pelo JS -->
+                </div>
+            </section>
+
+            <!-- Painel 5: Treino Cardio -->
+            <section id="panel-treino-cardio" class="content-panel hidden">
+                <h2>Treino Cardiovascular Sugerido</h2>
+                <div class="card-workout-box" id="workout-cardio-content">
+                    <!-- Gerado Dinamicamente pelo JS -->
+                </div>
+            </section>
+
+            <!-- Painel 6: Dicas Nutrição -->
+            <section id="panel-dicas-nutricao" class="content-panel hidden">
+                <h2>Diretrizes de Nutrição Essencial</h2>
+                <div class="nutrition-tips-grid">
+                    <div class="tips-card">
+                        <h3><i class="fa-solid fa-basket-shopping text-success"></i> Alimentos Recomendados</h3>
+                        <ul>
+                            <li><strong>Proteínas:</strong> Frango, peixes, ovos, carnes magras e leguminosas.</li>
+                            <li><strong>Gorduras:</strong> Azeite extra virgem, abacate, castanhas e ômega 3.</li>
+                            <li><strong>Carboidratos:</strong> Batata doce, arroz integral, aveia e vegetais.</li>
+                        </ul>
+                    </div>
+                    <div class="tips-card">
+                        <h3><i class="fa-solid fa-clock text-blue"></i> Horários Ideais</h3>
+                        <ul>
+                            <li><strong>Café da manhã:</strong> Até 1h após acordar.</li>
+                            <li><strong>Pré-Treino:</strong> 1 a 2 horas antes da atividade.</li>
+                            <li><strong>Pós-Treino:</strong> Até 1 hora após finalizar o estímulo.</li>
+                            <li><strong>Jantar:</strong> Até 2 horas antes de dormir.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Painel 7: Plano Alimentar -->
+            <section id="panel-plano-alimentar" class="content-panel hidden">
+                <h2>Plano Alimentar Diário Metrificado</h2>
+                <div class="timeline" id="diet-plan-timeline">
+                    <!-- Dinâmico via JS -->
+                </div>
+            </section>
+
+            <!-- Painel 8: Cardápio Simples -->
+            <section id="panel-cardapio" class="content-panel hidden">
+                <h2>Sugestão Prática de Cardápio</h2>
+                <div class="menu-grid" id="menu-simple-grid">
+                    <!-- Dinâmico via JS -->
+                </div>
+            </section>
+
+            <!-- Painel 9: Progresso -->
+            <section id="panel-progresso" class="content-panel hidden">
+                <h2>Acompanhamento de Evolução (12 Semanas)</h2>
+                <div class="progress-box-status" id="progress-status-box">
+                    <!-- Dinâmico via JS -->
+                </div>
+                <div class="timeline-weeks">
+                    <div class="week-step"><h4>Semanas 1-4</h4><p>Fase de Adaptação Anatômica e Nutricional</p></div>
+                    <div class="week-step"><h4>Semanas 5-8</h4><p>Fase de Evolução e Ajuste de Cargas/Déficits</p></div>
+                    <div class="week-step"><h4>Semanas 9-12</h4><p>Fase de Consolidação e Resultados Visíveis</p></div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+<!-- deploy fix -->
